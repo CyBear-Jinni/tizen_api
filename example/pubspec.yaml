@@ -10,7 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  web_socket_channel: ^2.4.5
   upnp2: ^3.0.12
   shared_preferences: ^2.2.3
   wakelock_plus: ^1.2.4

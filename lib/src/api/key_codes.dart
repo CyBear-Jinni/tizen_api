@@ -1,4 +1,4 @@
-enum KEY_CODES {
+enum KeyCodes {
   KEY_MENU,
   KEY_UP,
   KEY_DOWN,
