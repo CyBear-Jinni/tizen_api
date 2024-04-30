@@ -54,3 +54,26 @@ void addDeviceToList(String ip) async {
 '''dart
 TizenHelperMethods.selectedTv = tvVar;
 '''
+
+
+4. Control the TV using 
+
+'''dart
+TizenHelperMethods.selectedTv!
+.connectToSocket(preferences.getString("token"));
+
+TizenHelperMethods.selectedTv!.addToSocket(KeyCodes.KEY_VOLDOWN);
+// TizenHelperMethods.selectedTv!.addToSocket(KeyCodes.KEY_VOLUP);
+// TizenHelperMethods.selectedTv!.addToSocket(KeyCodes.KEY_POWER);
+'''
+
+
+## Test the example app
+The example is TV remote app and is very fun to test.
+
+You should to try it up with your TV.
+
+
+
+# Thanks
+Thanks [@shaharhn](https://github.com/shaharhn) for developing the base of this package
