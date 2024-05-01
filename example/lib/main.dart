@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tizen_api/tizen_api.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -69,22 +68,11 @@ class MyHomePageState extends State<MyHomePage> {
     scanNetwork();
   }
 
-  Future<void> scanNetwork() async {
-    TizenHelperMethods.log('Scan started, it may take a while');
-    String? ip = await NetworkInfo().getWifiIP();
-    TizenHelperMethods.log('IP: $ip');
-    String subnet = ip!.substring(0, ip.lastIndexOf('.'));
-    int port = 8002;
-    for (var i = 0; i < 256; i++) {
-      String ip = '$subnet.$i';
-      Future<Socket> socketTask =
-          Socket.connect(ip, port, timeout: const Duration(milliseconds: 50));
-      checkSocket(socketTask);
-    }
+  void scanNetwork() async {
+    await TizenHelperMethods.scanNetwork(checkSocket);
     setState(() {
       isLoading = false;
     });
-    TizenHelperMethods.log('Scan completed');
   }
 
   void checkSocket(Future<Socket> socketTask) async {
