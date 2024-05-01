@@ -52,8 +52,8 @@ class TV {
   void forwardToApplication(String application) =>
       Dio().post("${uri}applications/${applications[application]!}");
 
-  connectToSocket(String? token) {
-    final name = base64Encode("widgy-smart-remote".codeUnits);
+  void connectToSocket(String? token) {
+    String name = base64Encode("tizen_api".codeUnits);
     String tvIP = device.ip;
     String tvName = name;
     print("connecting to $tvName ($tvIP)...");
@@ -73,12 +73,12 @@ class TV {
 
   Stream? socketStream() => _socket?.stream;
 
-  addToSocket(KeyCodes key) => _socket?.sink.add(jsonEncode(
+  void addToSocket(KeyCodes key) => _socket?.sink.add(jsonEncode(
         {
           "method": "ms.remote.control",
           "params": {
             "Cmd": "Click",
-            "DataOfCmd": key.name,
+            "DataOfCmd": key.command,
             "Option": "false",
             "TypeOfRemote": "SendRemoteKey"
           }

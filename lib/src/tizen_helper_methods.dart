@@ -9,7 +9,11 @@ class TizenHelperMethods {
     HttpOverrides.global = _MyHttpOverrides();
   }
 
-  // TODO: Fix does not return results
+  static void log(String message) {
+    print('[Tizen API] $message');
+  }
+
+// TODO: Fix does not return results
   // static Stream<TV> scanForDevices() async* {
   //   String? ip = await NetworkInfo().getWifiIP();
   //   const port = 8002;
@@ -40,8 +44,6 @@ class _MyHttpOverrides extends HttpOverrides {
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
       ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) =>
-              TizenHelperMethods.selectedTv?.device.ip != null &&
-              host == TizenHelperMethods.selectedTv?.device.ip;
+          (X509Certificate cert, String host, int port) => true;
   }
 }
