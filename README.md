@@ -59,8 +59,7 @@ TizenHelperMethods.selectedTv = tvVar;
 4. Control the TV using 
 
 ```dart
-TizenHelperMethods.selectedTv!
-.connectToSocket(preferences.getString("token"));
+TizenHelperMethods.selectedTv!.connectToSocket(preferences.getString("token"));
 
 TizenHelperMethods.selectedTv!.addToSocket(KeyCodes.KEY_VOLDOWN);
 // TizenHelperMethods.selectedTv!.addToSocket(KeyCodes.KEY_VOLUP);
