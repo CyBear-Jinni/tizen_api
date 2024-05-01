@@ -7,13 +7,13 @@ TV Remote for all mobile devices
 
 1. First call initialize in your main function
 
-'''dart
+```dart
 TizenHelperMethods.initialize();
-'''
+```
 
 2. You can search devices like this
 
-'''dart
+```dart
 Future<void> scanNetwork() async {
     await (NetworkInfo().getWifiIP()).then(
       (ip) async {
@@ -47,25 +47,25 @@ void addDeviceToList(String ip) async {
         tvs.add(tv);
     });
 }
-'''
+```
 
 3. Before calling tv methods please set it like so
 
-'''dart
+```dart
 TizenHelperMethods.selectedTv = tvVar;
-'''
+```
 
 
 4. Control the TV using 
 
-'''dart
+```dart
 TizenHelperMethods.selectedTv!
 .connectToSocket(preferences.getString("token"));
 
 TizenHelperMethods.selectedTv!.addToSocket(KeyCodes.KEY_VOLDOWN);
 // TizenHelperMethods.selectedTv!.addToSocket(KeyCodes.KEY_VOLUP);
 // TizenHelperMethods.selectedTv!.addToSocket(KeyCodes.KEY_POWER);
-'''
+```
 
 
 ## Test the example app
