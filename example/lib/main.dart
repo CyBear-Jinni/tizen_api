@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -90,34 +89,6 @@ class MyHomePageState extends State<MyHomePage> {
         tvs.add(tv);
       });
     } catch (_) {}
-  }
-
-  // TODO: Decoding of the token should be part of the package.
-  void setupStream() {
-    if (TizenHelperMethods.selectedTv == null) {
-      return;
-    }
-    TizenHelperMethods.selectedTv!.connectToSocket(token);
-    TizenHelperMethods.selectedTv!.socketStream()?.listen((event) {
-      Logger.log('Received a message: $event');
-      if (TizenHelperMethods.selectedTv != _connectedTv) {
-        setState(() {
-          _connectedTv = TizenHelperMethods.selectedTv;
-        });
-      }
-      try {
-        final Map<String, Map<String, String?>> json =
-            jsonDecode(event as String) as Map<String, Map<String, String?>>;
-
-        final String? token = json['data']?['token'];
-        if (token != null) {
-          Logger.log('Received a new token: $token');
-          this.token = token;
-        }
-      } catch (e) {
-        Logger.log('Error parsing message: $e');
-      }
-    });
   }
 
   void _pressKey(KeyCodes key) {
@@ -329,4 +300,15 @@ class MyHomePageState extends State<MyHomePage> {
           ],
         ),
       );
+
+  void setupStream() {
+    TizenHelperMethods.setupStream(token).listen((String? onData) {
+      if (TizenHelperMethods.selectedTv != _connectedTv) {
+        setState(() {
+          _connectedTv = TizenHelperMethods.selectedTv;
+        });
+        token = onData;
+      }
+    });
+  }
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -52,6 +53,33 @@ class TizenHelperMethods {
       socketTaskFunction.call(socketTask);
     }
     log('Scan completed');
+  }
+
+  static Stream<String?> setupStream(String? token) async* {
+    if (TizenHelperMethods.selectedTv == null) {
+      return;
+    }
+    TizenHelperMethods.selectedTv!.connectToSocket(token);
+    final Stream? tvStream = TizenHelperMethods.selectedTv!.socketStream();
+    if (tvStream == null) {
+      return;
+    }
+    await for (final dynamic stream in tvStream) {
+      log('Received a message: $stream');
+
+      try {
+        final Map<String, Map<String, String?>> json =
+            jsonDecode(stream as String) as Map<String, Map<String, String?>>;
+
+        final String? token = json['data']?['token'];
+        if (token != null) {
+          log('Received a new token: $token');
+          yield token;
+        }
+      } catch (e) {
+        log('Error parsing message: $e');
+      }
+    }
   }
 }
 
