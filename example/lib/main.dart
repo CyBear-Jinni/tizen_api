@@ -83,7 +83,8 @@ class MyHomePageState extends State<MyHomePage> {
       final String ip = socket.address.address;
       socket.destroy();
       Logger.log('Checking TV at $ip');
-      final Response response = await Dio().get('http://$ip:8001/api/v2/');
+      final Response response =
+          await TizenHelperMethods.getFixed('http://$ip:8001/api/v2/');
       Logger.log('Found TV at $ip');
       final Tv tv = Tv.fromJson(response.data as Map<String, dynamic>);
       setState(() {

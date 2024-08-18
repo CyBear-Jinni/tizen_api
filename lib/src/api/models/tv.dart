@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:tizen_api/src/api/key_codes.dart';
 import 'package:tizen_api/src/api/models/device.dart';
 import 'package:tizen_api/src/tizen_helper_methods.dart';
@@ -48,8 +47,9 @@ class Tv {
     'disney': '3201807016598',
   };
 
-  void forwardToApplication(String application) =>
-      Dio().post('${uri}applications/${applications[application]!}');
+  void forwardToApplication(String application) => TizenHelperMethods.postFixed(
+        '${uri}applications/${applications[application]!}',
+      );
 
   void connectToSocket(String? token) {
     final String name = base64Encode('tizen_api'.codeUnits);

@@ -1,13 +1,36 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:tizen_api/src/api/models/tv.dart';
 
 class TizenHelperMethods {
   static Tv? selectedTv;
 
-  static void initialize() {
-    HttpOverrides.global = _MyHttpOverrides();
+  static Future<Response> getFixed(String path) async {
+    return HttpOverrides.runZoned(
+      () => Dio().get(path),
+      createHttpClient: (SecurityContext? context) =>
+          MyHttpOverrides().createHttpClient(context)
+            ..badCertificateCallback =
+                (X509Certificate cert, String host, int port) =>
+                    TizenHelperMethods.selectedTv?.device.ip != null &&
+                    host == TizenHelperMethods.selectedTv?.device.ip,
+    ); // Other HTTP requests outside this zone are unaffected
+  }
+
+  static Future postFixed(String path) async {
+    return HttpOverrides.runZoned(
+      () {
+        Dio().post(path);
+      },
+      createHttpClient: (SecurityContext? context) =>
+          MyHttpOverrides().createHttpClient(context)
+            ..badCertificateCallback =
+                (X509Certificate cert, String host, int port) =>
+                    TizenHelperMethods.selectedTv?.device.ip != null &&
+                    host == TizenHelperMethods.selectedTv?.device.ip,
+    ); // Other HTTP requests outside this zone are unaffected
   }
 
   static void log(String message) {
@@ -32,15 +55,4 @@ class TizenHelperMethods {
   }
 }
 
-class _MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    // TODO: Please try to replace this with runZoned in the required area :)
-    //  import 'dart:io';  class MyHttpOverrides extends HttpOverrides { @override HttpClient createHttpClient(SecurityContext? context) { return super.createHttpClient(context) ..badCertificateCallback = (X509Certificate cert, String host, int port) => true; } }  void main() { HttpOverrides.runZoned( () { // Your HTTP requests here will use the overridden behavior var client = HttpClient(); // Use your client for specific requests }, createHttpClient: (SecurityContext? context) => MyHttpOverrides().createHttpClient(context), );  // Other HTTP requests outside this zone are unaffected }
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) =>
-              TizenHelperMethods.selectedTv?.device.ip != null &&
-              host == TizenHelperMethods.selectedTv?.device.ip;
-  }
-}
+class MyHttpOverrides extends HttpOverrides {}
