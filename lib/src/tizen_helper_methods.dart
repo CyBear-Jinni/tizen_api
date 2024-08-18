@@ -35,8 +35,12 @@ class TizenHelperMethods {
 class _MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
+    // TODO: Please try to replace this with runZoned in the required area :)
+    //  import 'dart:io';  class MyHttpOverrides extends HttpOverrides { @override HttpClient createHttpClient(SecurityContext? context) { return super.createHttpClient(context) ..badCertificateCallback = (X509Certificate cert, String host, int port) => true; } }  void main() { HttpOverrides.runZoned( () { // Your HTTP requests here will use the overridden behavior var client = HttpClient(); // Use your client for specific requests }, createHttpClient: (SecurityContext? context) => MyHttpOverrides().createHttpClient(context), );  // Other HTTP requests outside this zone are unaffected }
     return super.createHttpClient(context)
       ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
+          (X509Certificate cert, String host, int port) =>
+              TizenHelperMethods.selectedTv?.device.ip != null &&
+              host == TizenHelperMethods.selectedTv?.device.ip;
   }
 }

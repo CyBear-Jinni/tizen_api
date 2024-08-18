@@ -76,6 +76,7 @@ class MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // TODO: Can be moved to the package and only transfer TV object
   Future<void> checkSocket(Future<Socket> socketTask) async {
     try {
       final Socket socket = await socketTask;
@@ -91,6 +92,7 @@ class MyHomePageState extends State<MyHomePage> {
     } catch (_) {}
   }
 
+  // TODO: Decoding of the token should be part of the package.
   void setupStream() {
     if (TizenHelperMethods.selectedTv == null) {
       return;
