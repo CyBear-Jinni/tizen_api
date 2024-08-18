@@ -4,9 +4,9 @@ import 'package:network_info_plus/network_info_plus.dart';
 import 'package:tizen_api/src/api/models/tv.dart';
 
 class TizenHelperMethods {
-  static TV? selectedTv;
+  static Tv? selectedTv;
 
-  static initialize() {
+  static void initialize() {
     HttpOverrides.global = _MyHttpOverrides();
   }
 
@@ -15,15 +15,16 @@ class TizenHelperMethods {
   }
 
   static Future<void> scanNetwork(
-      Function(Future<Socket>) socketTaskFunction) async {
+    Function(Future<Socket>) socketTaskFunction,
+  ) async {
     log('Scan started, it may take a while');
-    String? ip = await NetworkInfo().getWifiIP();
+    final String? ip = await NetworkInfo().getWifiIP();
     log('IP: $ip');
-    String subnet = ip!.substring(0, ip.lastIndexOf('.'));
-    int port = 8002;
+    final String subnet = ip!.substring(0, ip.lastIndexOf('.'));
+    const int port = 8002;
     for (var i = 0; i < 256; i++) {
-      String ip = '$subnet.$i';
-      Future<Socket> socketTask =
+      final String ip = '$subnet.$i';
+      final Future<Socket> socketTask =
           Socket.connect(ip, port, timeout: const Duration(milliseconds: 50));
       socketTaskFunction.call(socketTask);
     }

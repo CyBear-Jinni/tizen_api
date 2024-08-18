@@ -242,7 +242,7 @@ enum KeyCodes {
   keyExt40('KEY_EXT40'),
   keyExt41('KEY_EXT41');
 
-  final String command;
-
   const KeyCodes(this.command);
+
+  final String command;
 }

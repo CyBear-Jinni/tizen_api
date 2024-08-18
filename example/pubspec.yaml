@@ -8,24 +8,26 @@ environment:
   sdk: ^3.0.0
 
 dependencies:
+  cupertino_icons: ^1.0.8
+  dio: ^5.4.3+1
   flutter:
     sdk: flutter
-  upnp2: ^3.0.12
-  shared_preferences: ^2.2.3
-  wakelock_plus: ^1.2.4
-  wear: 1.1.0
-  dio: ^5.4.3+1
   network_info_plus: ^5.0.3
-
-  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.2.3
   tizen_api:
     path: ..
+  upnp2: ^3.0.12
+  wakelock_plus: ^1.2.4
+  wear: 1.1.0
+
 
 dev_dependencies:
+  flutter_lints: ^3.0.2
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^3.0.2
+  # Collection of lint rules for Dart and Flutter projects.
+  lint: ^2.3.0
 
 flutter:
 

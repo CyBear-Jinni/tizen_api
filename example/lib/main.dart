@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tizen/logger.dart';
 import 'package:tizen_api/tizen_api.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -41,23 +42,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class MyHomePageState extends State<MyHomePage> {
-  TV? _connectedTv;
-  List<TV> tvs = [];
+  Tv? _connectedTv;
+  List<Tv> tvs = [];
   Offset? _dragDelta;
   String? _token;
   bool isLoading = true;
 
-  bool get connectedToTV =>
+  bool get connectedToTv =>
       _connectedTv != null && _connectedTv == TizenHelperMethods.selectedTv;
 
-  String? get token => _token ??= preferences.getString("token");
+  String? get token => _token ??= preferences.getString('token');
 
   set token(String? token) {
     _token = token;
     if (token == null) {
-      preferences.remove("token");
+      preferences.remove('token');
     } else {
-      preferences.setString("token", token);
+      preferences.setString('token', token);
     }
   }
 
@@ -68,22 +69,22 @@ class MyHomePageState extends State<MyHomePage> {
     scanNetwork();
   }
 
-  void scanNetwork() async {
+  Future<void> scanNetwork() async {
     await TizenHelperMethods.scanNetwork(checkSocket);
     setState(() {
       isLoading = false;
     });
   }
 
-  void checkSocket(Future<Socket> socketTask) async {
+  Future<void> checkSocket(Future<Socket> socketTask) async {
     try {
-      Socket socket = await socketTask;
-      String ip = socket.address.address;
+      final Socket socket = await socketTask;
+      final String ip = socket.address.address;
       socket.destroy();
-      TizenHelperMethods.log('Checking TV at $ip');
-      Response response = await Dio().get("http://$ip:8001/api/v2/");
-      TizenHelperMethods.log('Found TV at $ip');
-      TV tv = TV.fromJson(response.data as Map<String, dynamic>);
+      Logger.log('Checking TV at $ip');
+      final Response response = await Dio().get('http://$ip:8001/api/v2/');
+      Logger.log('Found TV at $ip');
+      final Tv tv = Tv.fromJson(response.data as Map<String, dynamic>);
       setState(() {
         tvs.add(tv);
       });
@@ -96,21 +97,23 @@ class MyHomePageState extends State<MyHomePage> {
     }
     TizenHelperMethods.selectedTv!.connectToSocket(token);
     TizenHelperMethods.selectedTv!.socketStream()?.listen((event) {
-      TizenHelperMethods.log("Received a message: $event");
+      Logger.log('Received a message: $event');
       if (TizenHelperMethods.selectedTv != _connectedTv) {
         setState(() {
           _connectedTv = TizenHelperMethods.selectedTv;
         });
       }
       try {
-        Map json = jsonDecode(event);
-        String? token = json["data"]["token"];
+        final Map<String, Map<String, String?>> json =
+            jsonDecode(event as String) as Map<String, Map<String, String?>>;
+
+        final String? token = json['data']?['token'];
         if (token != null) {
-          TizenHelperMethods.log("Received a new token: $token");
+          Logger.log('Received a new token: $token');
           this.token = token;
         }
       } catch (e) {
-        TizenHelperMethods.log("Error parsing message: $e");
+        Logger.log('Error parsing message: $e');
       }
     });
   }
@@ -119,7 +122,7 @@ class MyHomePageState extends State<MyHomePage> {
     if (TizenHelperMethods.selectedTv == null) {
       return;
     }
-    TizenHelperMethods.log('Sending key: $key');
+    Logger.log('Sending key: $key');
     HapticFeedback.mediumImpact();
     TizenHelperMethods.selectedTv!.addToSocket(key);
   }
@@ -129,42 +132,46 @@ class MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: DropdownButton<String>(
-          hint: const Text("Select TV"),
+          hint: const Text('Select TV'),
           value: TizenHelperMethods.selectedTv?.name,
           onChanged: (String? tv) {
+            final Tv selectedTvTemp =
+                tvs.firstWhere((element) => element.name == tv);
             setState(() {
-              TizenHelperMethods.selectedTv =
-                  tvs.firstWhere((element) => element.name == tv);
+              TizenHelperMethods.selectedTv = selectedTvTemp;
             });
             setupStream();
           },
           items: tvs
-              .map<DropdownMenuItem<String>>((TV tv) =>
-                  DropdownMenuItem<String>(
-                    value: tv.name,
-                    child: Text(tv.name, style: const TextStyle(fontSize: 30)),
-                  ))
+              .map<DropdownMenuItem<String>>(
+                (Tv tv) => DropdownMenuItem<String>(
+                  value: tv.name,
+                  child: Text(tv.name, style: const TextStyle(fontSize: 30)),
+                ),
+              )
               .toList(),
         ),
-        actions: connectedToTV
+        actions: connectedToTv
             ? [
                 IconButton(
                   icon: const Icon(Icons.power_settings_new),
                   onPressed: () => _pressKey(KeyCodes.keyPower),
                 ),
               ]
-            : [],
+            : null,
       ),
-      body: connectedToTV
-          ? buildConnectedTVUI
+      body: connectedToTv
+          ? buildConnectedTvUi
           : Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (tvs.isNotEmpty)
-                    Text(_connectedTv != TizenHelperMethods.selectedTv
-                        ? "Waiting for TV to connect"
-                        : "Select a TV"),
+                    Text(
+                      _connectedTv != TizenHelperMethods.selectedTv
+                          ? 'Waiting for TV to connect'
+                          : 'Select a TV',
+                    ),
                   const SizedBox(height: 20),
                   if (isLoading)
                     const CircularProgressIndicator()
@@ -174,14 +181,14 @@ class MyHomePageState extends State<MyHomePage> {
                       icon: const Icon(Icons.refresh),
                       onPressed: scanNetwork,
                     ),
-                  ]
+                  ],
                 ],
               ),
             ),
     );
   }
 
-  Widget get buildConnectedTVUI => Column(
+  Widget get buildConnectedTvUi => Column(
         children: [
           buildTopRow,
           const Divider(),
@@ -195,30 +202,30 @@ class MyHomePageState extends State<MyHomePage> {
         children: [
           Expanded(
             child: DropdownButton<String>(
-              hint: const Text("Select Application"),
-              value: null,
+              hint: const Text('Select Application'),
               onChanged: (String? application) {
                 if (TizenHelperMethods.selectedTv == null) return;
                 HapticFeedback.lightImpact();
                 TizenHelperMethods.selectedTv!
                     .forwardToApplication(application!);
               },
-              items: TV.applications.keys
+              items: Tv.applications.keys
                   .map<DropdownMenuItem<String>>(
-                      (String value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(
-                              value,
-                              style: const TextStyle(fontSize: 30),
-                            ),
-                          ))
+                    (String value) => DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: const TextStyle(fontSize: 30),
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: InkWell(
-              child: const Text("HDMI", textAlign: TextAlign.center),
+              child: const Text('HDMI', textAlign: TextAlign.center),
               onTap: () => _pressKey(KeyCodes.keyHdmi),
             ),
           ),
@@ -254,11 +261,9 @@ class MyHomePageState extends State<MyHomePage> {
         case -1:
           _pressKey(KeyCodes.keyVolUp);
           _dragDelta = _dragDelta!.translate(0, threshold);
-          break;
         case 1:
           _pressKey(KeyCodes.keyVolDown);
           _dragDelta = _dragDelta!.translate(0, -threshold);
-          break;
       }
     }
   }
@@ -284,19 +289,15 @@ class MyHomePageState extends State<MyHomePage> {
         case -2:
           _pressKey(KeyCodes.keyLeft);
           _dragDelta = _dragDelta!.translate(threshold, -_dragDelta!.dy);
-          break;
         case -1:
           _pressKey(KeyCodes.keyUp);
           _dragDelta = _dragDelta!.translate(-_dragDelta!.dx, threshold);
-          break;
         case 0:
           _pressKey(KeyCodes.keyRight);
           _dragDelta = _dragDelta!.translate(-threshold, -_dragDelta!.dy);
-          break;
         case 1:
           _pressKey(KeyCodes.keyDown);
           _dragDelta = _dragDelta!.translate(-_dragDelta!.dx, -threshold);
-          break;
       }
     }
   }

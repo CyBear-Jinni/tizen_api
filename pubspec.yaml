@@ -8,11 +8,12 @@ environment:
 
 
 dependencies:
-  network_info_plus: ^5.0.3
   dio: ^5.4.3+1
+  network_info_plus: ^5.0.3
   web_socket_channel: ^2.4.5
 
 
 dev_dependencies:
-  lints: ^3.0.0
+  # Collection of lint rules for Dart and Flutter projects.
+  lint: ^2.3.0
   test: ^1.25.2
