@@ -15,7 +15,6 @@ late final SharedPreferences preferences;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   preferences = await SharedPreferences.getInstance();
-  TizenHelperMethods.initialize();
   runApp(const MyApp());
 }
 
