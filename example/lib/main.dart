@@ -1,9 +1,8 @@
-import 'dart:io';
 import 'dart:math';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tizen/logger.dart';
 import 'package:tizen_api/tizen_api.dart';
@@ -68,27 +67,19 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> scanNetwork() async {
-    await TizenHelperMethods.scanNetwork(checkSocket);
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  // TODO: Can be moved to the package and only transfer TV object
-  Future<void> checkSocket(Future<Socket> socketTask) async {
-    try {
-      final Socket socket = await socketTask;
-      final String ip = socket.address.address;
-      socket.destroy();
-      Logger.log('Checking TV at $ip');
-      final Response response =
-          await TizenHelperMethods.getFixed('http://$ip:8001/api/v2/');
-      Logger.log('Found TV at $ip');
-      final Tv tv = Tv.fromJson(response.data as Map<String, dynamic>);
+    final String? ip = await NetworkInfo().getWifiIP();
+    if (ip == null) {
+      return;
+    }
+    final Stream<Tv> tvSteam = TizenHelperMethods.scanNetwork(ip);
+    await for (final Tv tv in tvSteam) {
       setState(() {
         tvs.add(tv);
       });
-    } catch (_) {}
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void _pressKey(KeyCodes key) {

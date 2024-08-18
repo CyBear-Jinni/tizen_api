@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:tizen_api/src/api/models/tv.dart';
 
 class TizenHelperMethods {
@@ -38,21 +38,36 @@ class TizenHelperMethods {
     print('[Tizen API] $message');
   }
 
-  static Future<void> scanNetwork(
-    Function(Future<Socket>) socketTaskFunction,
-  ) async {
+  static Stream<Tv> scanNetwork(String ip) {
     log('Scan started, it may take a while');
-    final String? ip = await NetworkInfo().getWifiIP();
     log('IP: $ip');
-    final String subnet = ip!.substring(0, ip.lastIndexOf('.'));
+    final String subnet = ip.substring(0, ip.lastIndexOf('.'));
     const int port = 8002;
+    final List<Future<Tv?>> tvFutureList = [];
+    final StreamController<Tv> controller = StreamController<Tv>();
+
     for (var i = 0; i < 256; i++) {
       final String ip = '$subnet.$i';
-      final Future<Socket> socketTask =
-          Socket.connect(ip, port, timeout: const Duration(milliseconds: 50));
-      socketTaskFunction.call(socketTask);
+      tvFutureList.add(TizenHelperMethods.checkSocket(ip, port));
     }
-    log('Scan completed');
+    for (final Future<Tv?> tvFuture in tvFutureList) {
+      tvFuture.then((Tv? tv) {
+        if (tv == null) {
+          return;
+        }
+        if (!controller.isClosed) {
+          controller.add(tv);
+        }
+      });
+    }
+
+    // Close the stream controller when all futures are completed
+    Future.wait(tvFutureList).then((_) {
+      log('Scan completed');
+      controller.close();
+    });
+
+    return controller.stream;
   }
 
   static Stream<String?> setupStream(String? token) async* {
@@ -80,6 +95,25 @@ class TizenHelperMethods {
         log('Error parsing message: $e');
       }
     }
+  }
+
+  static Future<Tv?> checkSocket(String host, int port) async {
+    try {
+      final Socket socket = await Socket.connect(
+        host,
+        port,
+        timeout: const Duration(milliseconds: 50),
+      );
+      final String ip = socket.address.address;
+      socket.destroy();
+
+      log('Checking TV at $ip');
+      final Response response =
+          await TizenHelperMethods.getFixed('http://$ip:8001/api/v2/');
+      log('Found TV at $ip');
+      return Tv.fromJson(response.data as Map<String, dynamic>);
+    } catch (_) {}
+    return null;
   }
 }
 
