@@ -38,27 +38,25 @@ class TizenHelperMethods {
     print('[Tizen API] $message');
   }
 
-  static Stream<Tv> scanNetwork(String ip) {
+  static Future scanNetwork(StreamController<Tv> controller, String ip) async {
     log('Scan started, it may take a while');
     log('IP: $ip');
     final String subnet = ip.substring(0, ip.lastIndexOf('.'));
     const int port = 8002;
     final List<Future<Tv?>> tvFutureList = [];
-    final StreamController<Tv> controller = StreamController<Tv>();
 
     for (var i = 0; i < 256; i++) {
       final String ip = '$subnet.$i';
       tvFutureList.add(TizenHelperMethods.checkSocket(ip, port));
     }
     for (final Future<Tv?> tvFuture in tvFutureList) {
-      tvFuture.then((Tv? tv) {
-        if (tv == null) {
-          return;
-        }
-        if (!controller.isClosed) {
-          controller.add(tv);
-        }
-      });
+      final Tv? tv = await tvFuture;
+      if (tv == null) {
+        continue;
+      }
+      if (!controller.isClosed) {
+        controller.add(tv);
+      }
     }
 
     // Close the stream controller when all futures are completed
@@ -66,8 +64,6 @@ class TizenHelperMethods {
       log('Scan completed');
       controller.close();
     });
-
-    return controller.stream;
   }
 
   static Stream<String?> setupStream(String? token) async* {

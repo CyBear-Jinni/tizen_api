@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -71,15 +72,19 @@ class MyHomePageState extends State<MyHomePage> {
     if (ip == null) {
       return;
     }
-    final Stream<Tv> tvSteam = TizenHelperMethods.scanNetwork(ip);
-    await for (final Tv tv in tvSteam) {
+    final StreamController<Tv> tvSteam = StreamController();
+
+    tvSteam.stream.listen((tv) {
       setState(() {
         tvs.add(tv);
       });
-    }
-    setState(() {
-      isLoading = false;
+    }).onDone(() {
+      setState(() {
+        isLoading = false;
+      });
     });
+
+    TizenHelperMethods.scanNetwork(tvSteam, ip);
   }
 
   void _pressKey(KeyCodes key) {
