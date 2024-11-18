@@ -65,10 +65,10 @@ class MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     WakelockPlus.enable();
-    scanNetwork();
+    searchDevices();
   }
 
-  Future<void> scanNetwork() async {
+  Future<void> searchDevices() async {
     final String? ip = await NetworkInfo().getWifiIP();
     if (ip == null) {
       return;
@@ -146,7 +146,7 @@ class MyHomePageState extends State<MyHomePage> {
                     const Text('Could not find any TV, you retry'),
                     IconButton(
                       icon: const Icon(Icons.refresh),
-                      onPressed: scanNetwork,
+                      onPressed: searchDevices,
                     ),
                   ],
                 ],

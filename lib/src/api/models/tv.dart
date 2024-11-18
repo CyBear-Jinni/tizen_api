@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:tizen_api/src/api/key_codes.dart';
 import 'package:tizen_api/src/api/models/device.dart';
@@ -16,7 +17,7 @@ class Tv {
     required this.version,
     required this.device,
   });
-  factory Tv.fromJson(Map<String, dynamic> json) {
+  factory Tv.fromJson(Map<String, dynamic> json, String ip) {
     return Tv(
       id: json['id'] as String,
       isSupport: json['isSupport'] as String,
@@ -25,7 +26,7 @@ class Tv {
       type: json['type'] as String,
       uri: json['uri'] as String,
       version: json['version'] as String,
-      device: Device.fromJson(json['device'] as Map<String, dynamic>),
+      device: Device.fromJson(json['device'] as Map<String, dynamic>, ip),
     );
   }
 
@@ -56,18 +57,24 @@ class Tv {
     final String tvIP = device.ip;
     final String tvName = name;
     TizenHelperMethods.log('connecting to $tvName ($tvIP)...');
-    _socket = WebSocketChannel.connect(
-      Uri(
-        scheme: 'wss',
-        host: tvIP,
-        port: 8002,
-        path: '/api/v2/channels/samsung.remote.control',
-        queryParameters: {
-          'name': name,
-          'token': token,
-        },
+    HttpOverrides.runZoned(
+      () => _socket = WebSocketChannel.connect(
+        Uri(
+          scheme: 'wss',
+          host: tvIP,
+          port: 8002,
+          path: '/api/v2/channels/samsung.remote.control',
+          queryParameters: {
+            'name': name,
+            'token': token,
+          },
+        ),
       ),
-    );
+      createHttpClient: (SecurityContext? context) => MyHttpOverrides()
+          .createHttpClient(context)
+        ..badCertificateCallback =
+            (X509Certificate cert, String host, int port) => host == device.ip,
+    ); // Other HTTP requests outside this zone are unaffected
   }
 
   Stream? socketStream() => _socket?.stream;
