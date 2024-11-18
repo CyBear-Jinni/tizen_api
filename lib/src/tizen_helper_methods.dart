@@ -60,10 +60,9 @@ class TizenHelperMethods {
     }
 
     // Close the stream controller when all futures are completed
-    Future.wait(tvFutureList).then((_) {
-      log('Scan completed');
-      controller.close();
-    });
+    await Future.wait(tvFutureList);
+    log('Scan completed');
+    controller.close();
   }
 
   static Stream<String?> setupStream(String? token) async* {
@@ -104,11 +103,11 @@ class TizenHelperMethods {
       socket.destroy();
 
       log('Checking TV at $ip');
-      final Response response =
-          await TizenHelperMethods.getFixed('http://$ip:8001/api/v2/');
+      final String path = 'http://$ip:8001/api/v2/';
+      final Response response = await TizenHelperMethods.getFixed(path);
       log('Found TV at $ip');
       return Tv.fromJson(response.data as Map<String, dynamic>);
-    } catch (_) {}
+    } catch (e) {}
     return null;
   }
 }

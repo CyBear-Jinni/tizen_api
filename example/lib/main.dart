@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ late final SharedPreferences preferences;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   preferences = await SharedPreferences.getInstance();
+  HttpOverrides.global = _MyHttpOverrides();
+
   runApp(const MyApp());
 }
 
@@ -306,5 +309,14 @@ class MyHomePageState extends State<MyHomePage> {
         token = onData;
       }
     });
+  }
+}
+
+class _MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
