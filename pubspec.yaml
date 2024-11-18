@@ -4,15 +4,16 @@ version: 1.0.2
 repository: https://github.com/CyBear-Jinni/tizen_api
 
 environment:
-  sdk: ^3.3.3
+  sdk: ^3.5.3
 
 
 dependencies:
-  network_info_plus: ^5.0.3
   dio: ^5.4.3+1
-  web_socket_channel: ^2.4.5
+  network_info_plus: ^6.1.1
+  web_socket_channel: ^3.0.1
 
 
 dev_dependencies:
-  lints: ^3.0.0
+  # Collection of lint rules for Dart and Flutter projects.
+  lint: ^2.3.0
   test: ^1.25.2
