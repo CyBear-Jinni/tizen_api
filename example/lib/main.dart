@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ late final SharedPreferences preferences;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   preferences = await SharedPreferences.getInstance();
+
   runApp(const MyApp());
 }
 
@@ -71,14 +73,15 @@ class MyHomePageState extends State<MyHomePage> {
     if (ip == null) {
       return;
     }
-    final Stream<Tv> tvSteam = TizenHelperMethods.scanNetwork(ip);
-    await for (final Tv tv in tvSteam) {
+
+    TizenHelperMethods.scanNetwork(ip).listen((tv) {
       setState(() {
         tvs.add(tv);
       });
-    }
-    setState(() {
-      isLoading = false;
+    }).onDone(() {
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 

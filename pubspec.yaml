@@ -4,13 +4,13 @@ version: 1.0.2
 repository: https://github.com/CyBear-Jinni/tizen_api
 
 environment:
-  sdk: ^3.3.3
+  sdk: ^3.5.3
 
 
 dependencies:
   dio: ^5.4.3+1
-  network_info_plus: ^5.0.3
-  web_socket_channel: ^2.4.5
+  network_info_plus: ^6.1.1
+  web_socket_channel: ^3.0.1
 
 
 dev_dependencies:

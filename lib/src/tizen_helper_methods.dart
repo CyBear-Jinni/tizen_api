@@ -38,36 +38,23 @@ class TizenHelperMethods {
     print('[Tizen API] $message');
   }
 
-  static Stream<Tv> scanNetwork(String ip) {
+  static Stream<Tv> scanNetwork(String ip) async* {
     log('Scan started, it may take a while');
     log('IP: $ip');
     final String subnet = ip.substring(0, ip.lastIndexOf('.'));
     const int port = 8002;
-    final List<Future<Tv?>> tvFutureList = [];
-    final StreamController<Tv> controller = StreamController<Tv>();
 
     for (var i = 0; i < 256; i++) {
       final String ip = '$subnet.$i';
-      tvFutureList.add(TizenHelperMethods.checkSocket(ip, port));
-    }
-    for (final Future<Tv?> tvFuture in tvFutureList) {
-      tvFuture.then((Tv? tv) {
-        if (tv == null) {
-          return;
-        }
-        if (!controller.isClosed) {
-          controller.add(tv);
-        }
-      });
+      final Tv? tv = await TizenHelperMethods.checkSocket(ip, port);
+      if (tv == null) {
+        continue;
+      }
+      yield tv;
     }
 
     // Close the stream controller when all futures are completed
-    Future.wait(tvFutureList).then((_) {
-      log('Scan completed');
-      controller.close();
-    });
-
-    return controller.stream;
+    log('Scan completed');
   }
 
   static Stream<String?> setupStream(String? token) async* {
@@ -108,11 +95,11 @@ class TizenHelperMethods {
       socket.destroy();
 
       log('Checking TV at $ip');
-      final Response response =
-          await TizenHelperMethods.getFixed('http://$ip:8001/api/v2/');
+      final String path = 'http://$ip:8001/api/v2/';
+      final Response response = await TizenHelperMethods.getFixed(path);
       log('Found TV at $ip');
       return Tv.fromJson(response.data as Map<String, dynamic>);
-    } catch (_) {}
+    } catch (e) {}
     return null;
   }
 }
