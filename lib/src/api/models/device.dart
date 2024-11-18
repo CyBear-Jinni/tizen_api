@@ -26,7 +26,7 @@ class Device {
     required this.wifiMac,
   });
 
-  factory Device.fromJson(Map<String, dynamic> json) {
+  factory Device.fromJson(Map<String, dynamic> json, String ip) {
     return Device(
       frameTVSupport: json['FrameTVSupport'] as String,
       gamePadSupport: json['GamePadSupport'] as String,
@@ -41,7 +41,8 @@ class Device {
       duid: json['duid'] as String,
       firmwareVersion: json['firmwareVersion'] as String,
       id: json['id'] as String,
-      ip: json['ip'] as String,
+      // json['ip'] retrieves the wrong ip
+      ip: ip,
       model: json['model'] as String,
       modelName: json['modelName'] as String,
       name: json['name'] as String,
