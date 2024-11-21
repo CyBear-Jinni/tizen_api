@@ -3,6 +3,9 @@ description: Control your Samsung Tizen TV, writen in pure dart native. Trying t
 version: 1.0.5
 repository: https://github.com/CyBear-Jinni/tizen_api
 
+exclude:
+  - example/
+
 environment:
   sdk: ^3.5.3
 
