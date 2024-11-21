@@ -2,13 +2,30 @@ name: Publish to pub.dev
 
 on:
   push:
-    tags:
-      - 'v{{version}}'
+    branches:
+      - main
 
-
-# Publish using the reusable workflow from dart-lang.
 jobs:
   publish:
-    permissions:
-      id-token: write # Required for authentication using OIDC
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    name: Publish to pub.dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Validate package
+        run: dart pub publish --dry-run
+
+      - name: Publish package
+        env:
+          PUB_CREDENTIALS: ${{ secrets.PUB_CREDENTIALS }}
+        run: echo "$PUB_CREDENTIALS" > ~/.pub-cache/credentials.json && dart pub publish --force
