@@ -1,3 +1,7 @@
+## 1.0.3
+
+- Removed the need to initialize the package
+
 ## 1.0.2
 
 - Fixing score issues
