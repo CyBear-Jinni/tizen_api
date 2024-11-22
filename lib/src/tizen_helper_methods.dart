@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:tizen_api/src/api/models/tv.dart';
+import 'package:universal_io/io.dart';
 
 class TizenHelperMethods {
   static Tv? selectedTv;
