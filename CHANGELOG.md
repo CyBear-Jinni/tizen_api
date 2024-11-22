@@ -1,4 +1,4 @@
-## 1.0.9
+## 1.0.11
 
 - Removed the need to initialize the package.
 
