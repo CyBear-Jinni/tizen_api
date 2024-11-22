@@ -1,5 +1,5 @@
 name: tizen_api
-description: Control your Samsung Tizen TV, writen in pure dart native. Trying the example project is highly encouraged :)
+description: Control your Samsung Tizen TV, written in pure dart native. Trying the example project is highly encouraged :)
 version: 1.0.6
 repository: https://github.com/CyBear-Jinni/tizen_api
 

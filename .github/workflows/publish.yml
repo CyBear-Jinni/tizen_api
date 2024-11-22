@@ -30,4 +30,7 @@ jobs:
       - name: Publish package
         env:
           PUB_CREDENTIALS: ${{ secrets.PUB_CREDENTIALS }}
-        run: echo "$PUB_CREDENTIALS" > ~/.pub-cache/credentials.json && dart pub publish --force
+        run: |
+          mkdir -p ~/.pub-cache
+          echo "$PUB_CREDENTIALS" > ~/.pub-cache/credentials.json
+          dart pub publish --force
