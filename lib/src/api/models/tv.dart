@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:tizen_api/src/api/key_codes.dart';
 import 'package:tizen_api/src/api/models/device.dart';
 import 'package:tizen_api/src/tizen_helper_methods.dart';
+import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Tv {

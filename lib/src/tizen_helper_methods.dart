@@ -73,16 +73,15 @@ class TizenHelperMethods {
         final Map<String, dynamic> json =
             jsonDecode(stream as String) as Map<String, dynamic>;
 
-        final Map<String, dynamic>? data = json['data'] as Map<String, dynamic>;
-        final dynamic dynamicToken = data?['token'];
-        final dynamic dynamicId = data?['id'];
-        token;
+        final Map<String, dynamic> data = json['data'] as Map<String, dynamic>;
+        final dynamic dynamicToken = data['token'];
+        final dynamic dynamicId = data['id'];
         if (dynamicToken is String) {
-          String? token = dynamicToken;
+          final String token = dynamicToken;
           log('Received a new token: $token');
           yield token;
         } else if (dynamicId is String) {
-          final String? id = dynamicId;
+          final String id = dynamicId;
           log('Received a new id: $id');
           yield id;
         }
@@ -107,7 +106,10 @@ class TizenHelperMethods {
       final Response response = await TizenHelperMethods.getFixed(path);
       log('Found TV at $ip');
       return Tv.fromJson(response.data as Map<String, dynamic>, ip);
-    } catch (e) {}
+    } catch (e) {
+      log('Error: $e');
+    }
+
     return null;
   }
 }
