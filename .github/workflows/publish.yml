@@ -14,16 +14,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+      - uses: subosito/flutter-action@v2
         with:
           sdk: stable
 
-      - name: Remove example directory
-        run: rm -rf ./example
-
       - name: Install dependencies
         run: dart pub get
+
+      - name: Run tests
+        run: dart test
 
       - name: Validate package
         run: dart pub publish --dry-run
