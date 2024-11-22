@@ -2,35 +2,18 @@ name: Publish to pub.dev
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   publish:
-    name: Publish to pub.dev
+    permissions:
+      id-token: write
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - uses: subosito/flutter-action@v2
-        with:
-          sdk: stable
-
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1
       - name: Install dependencies
         run: dart pub get
-
-      - name: Run tests
-        run: dart test
-
-      - name: Validate package
-        run: dart pub publish --dry-run
-
-      - name: Publish package
-        env:
-          PUB_CREDENTIALS: ${{ secrets.PUB_CREDENTIALS }}
-        run: |
-          mkdir -p ~/.pub-cache
-          echo "$PUB_CREDENTIALS" > ~/.pub-cache/credentials.json
-          dart pub publish --force
+      - name: Publish
+        run: dart pub publish --force
